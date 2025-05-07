@@ -51,7 +51,9 @@ app.post('/generate-case', async (req, res) => {
     - Posibles tratamientos de riesgo
     - Relación con la norma ISO 31000
     
-    El caso debe ser realista y adecuado para un análisis profesional, no debe sobrepasar los 200 caracteres y debe ser claro y conciso.`;
+    El caso debe ser realista y adecuado para un análisis profesional,
+    el caso de estudio debe tener un nombre para la empresa muy creativo no debe ser empresa XYZ o lugar XYZ debe tener un nombre creativo además
+   no debe sobrepasar los 200 caracteres y debe ser claro y conciso.`;
 
     console.log('[SERVER] Prompt creado:', prompt.substring(0, 150) + '...');
 
