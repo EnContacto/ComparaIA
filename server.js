@@ -53,7 +53,7 @@ app.post('/generate-case', async (req, res) => {
     
     El caso debe ser realista y adecuado para un análisis profesional,
     el caso de estudio debe tener un nombre para la empresa muy creativo no debe ser empresa XYZ o lugar XYZ debe tener un nombre creativo además
-   no debe sobrepasar los 200 caracteres y debe ser claro y conciso.`;
+   no debe sobrepasar los 350 caracteres y debe ser claro y conciso.`;
 
     console.log('[SERVER] Prompt creado:', prompt.substring(0, 150) + '...');
 
@@ -65,7 +65,7 @@ app.post('/generate-case', async (req, res) => {
         { role: "user", content: prompt }
       ],
       temperature: 0.7,
-      max_tokens: 250
+      max_tokens: 400
     });
 
     const caseStudy = completion.choices[0].message.content;
