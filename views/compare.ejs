@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparación de Respuestas</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Banner principal -->
+    <div class="banner">
+        <h1>Comparación de Respuestas</h1>
+        <p>Análisis detallado de tu respuesta versus la respuesta de la IA</p>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Sección de comparación -->
+        <div class="comparison-section">
+            <div class="response-comparison">
+                <div class="response-box">
+                    <h2>Tu Respuesta</h2>
+                    <div class="response-content"><%= userResponse %></div>
+                </div>
+                
+                <div class="response-box">
+                    <h2>Respuesta de la IA</h2>
+                    <div class="response-content"><%= aiResponse %></div>
+                </div>
+            </div>
+            
+            <div class="analysis-results">
+                <h2>Análisis Comparativo</h2>
+                
+                <div class="analysis-item">
+                    <h3>Patrones identificados</h3>
+                    <p><%= patterns %></p>
+                </div>
+                
+                <div class="analysis-item">
+                    <h3>Similitudes</h3>
+                    <p><%= similarities %></p>
+                </div>
+                
+                <div class="analysis-item">
+                    <h3>Diferencias</h3>
+                    <p><%= differences %></p>
+                </div>
+                
+                <div class="analysis-item">
+                    <h3>Confiabilidad</h3>
+                    <p><%= reliability %></p>
+                </div>
+            </div>
+            
+            <a href="/" class="btn-primary">Volver al Generador</a>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <footer>
+        <p>&copy; 2025 Generador de Casos de Estudio - Legislación Informática. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

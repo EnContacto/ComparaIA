@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Casos de Estudio - Gestión de Riesgos</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Banner principal -->
+    <div class="banner">
+        <h1>Generador de Casos de Estudio</h1>
+        <p>Analiza y resuelve casos de Gestión de Riesgos en Sistemas de Información basados en ISO 31000</p>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Sección de generación de casos -->
+        <div class="section">
+            <h2>Generar Nuevo Caso de Estudio</h2>
+            <button id="generateCase" class="btn-primary">Generar Caso de Estudio</button>
+            
+            <div id="caseStudyContainer" class="hidden">
+                <div class="dialog-box" id="caseStudyDialog"></div>
+            </div>
+        </div>
+
+        <!-- Sección de respuestas -->
+        <div class="response-container">
+            <!-- Columna de respuesta del usuario -->
+            <div class="response-column">
+                <h2>Tu Respuesta</h2>
+                <textarea id="userResponse" rows="8" placeholder="Escribe tu análisis del caso aquí..."></textarea>
+                <button id="submitResponse" class="btn-secondary">Enviar Respuesta</button>
+            </div>
+            
+            <!-- Columna de respuesta de IA -->
+            <div class="response-column">
+                <h2>Respuesta de la IA</h2>
+                <div class="dialog-box" id="aiResponse"></div>
+                <button id="generateAIResponse" class="btn-primary">Generar Respuesta IA</button>
+            </div>
+        </div>
+
+        <!-- Sección de comparación -->
+        <div class="comparison-section hidden" id="comparisonSection">
+            <h2>Comparación de Resultados</h2>
+            <div class="comparison-results" id="comparisonResults"></div>
+            <button id="compareResults" class="btn-accent">Comparar Respuestas</button>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <footer>
+        <p>&copy; 2025 Generador de Casos de Estudio - Gestión de Riesgos. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
