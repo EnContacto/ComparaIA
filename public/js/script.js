@@ -12,8 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
   const compareResultsBtn = document.getElementById('compareResults');
   const comparisonSection = document.getElementById('comparisonSection');
   const comparisonResults = document.getElementById('comparisonResults');
+  const downloadCaseBtn = document.getElementById('downloadCase');
+  const downloadAnalysisBtn = document.getElementById('downloadAnalysis');
   
   let currentCaseStudy = '';
+  let currentComparison = null;
   
   // Función para animar texto como si se estuviera escribiendo
   function typeWriter(element, text, speed = 20, callback) {
@@ -46,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('[CLIENT] Click en Generar Caso de Estudio');
       
       try {
-          // Mostrar estado de carga
           generateCaseBtn.disabled = true;
           generateCaseBtn.textContent = 'Generando...';
           caseStudyDialog.textContent = 'Generando caso de estudio...';
@@ -61,20 +63,24 @@ document.addEventListener('DOMContentLoaded', function() {
                   topic: 'Gestión de Riesgos en Sistemas de Información - ISO 31000'
               })
           });
+
+          // Debug: Ver respuesta cruda
+          const responseText = await response.text();
+          console.log('Respuesta cruda:', responseText);
           
           if (!response.ok) {
-              const errorData = await response.json();
+              const errorData = JSON.parse(responseText);
               throw new Error(errorData.error || 'Error al generar el caso de estudio');
           }
 
-          const data = await response.json();
+          const data = JSON.parse(responseText);
           currentCaseStudy = data.caseStudy;
           
-          // Animar la aparición del texto
           typeWriter(caseStudyDialog, currentCaseStudy, 10, () => {
               generateCaseBtn.disabled = false;
               generateCaseBtn.textContent = 'Generar Caso de Estudio';
               comparisonSection.classList.add('hidden');
+              downloadCaseBtn.classList.remove('hidden');
           });
           
       } catch (error) {
@@ -84,6 +90,44 @@ document.addEventListener('DOMContentLoaded', function() {
           generateCaseBtn.disabled = false;
           generateCaseBtn.textContent = 'Generar Caso de Estudio';
       }
+  });
+
+  // Descargar caso de estudio como PDF
+  downloadCaseBtn.addEventListener('click', async function() {
+    if (!currentCaseStudy) {
+      alert('No hay caso de estudio para descargar');
+      return;
+    }
+
+    try {
+      downloadCaseBtn.disabled = true;
+      downloadCaseBtn.textContent = 'Generando PDF...';
+      
+      const response = await fetch('/generate-case-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          caseStudy: currentCaseStudy
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al generar PDF');
+      }
+
+      const data = await response.json();
+      window.open(data.pdfUrl, '_blank');
+      
+    } catch (error) {
+      console.error('[CLIENT] Error al generar PDF:', error);
+      alert(`Error al generar PDF: ${error.message}`);
+    } finally {
+      downloadCaseBtn.disabled = false;
+      downloadCaseBtn.textContent = 'Descargar Caso (PDF)';
+    }
   });
 
   // Generar respuesta de IA
@@ -110,14 +154,16 @@ document.addEventListener('DOMContentLoaded', function() {
               })
           });
 
+          const responseText = await response.text();
+          console.log('Respuesta cruda:', responseText);
+          
           if (!response.ok) {
-              const errorData = await response.json();
+              const errorData = JSON.parse(responseText);
               throw new Error(errorData.error || 'Error al generar la respuesta de IA');
           }
 
-          const data = await response.json();
+          const data = JSON.parse(responseText);
           
-          // Animar la respuesta de IA
           typeWriter(aiResponse, data.aiResponse, 5, () => {
               generateAIResponseBtn.disabled = false;
               generateAIResponseBtn.textContent = 'Generar Respuesta IA';
@@ -134,86 +180,121 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Comparar resultados
-// Comparar resultados
-compareResultsBtn.addEventListener('click', async function() {
-  console.log('[CLIENT] Click en Comparar Resultados');
-  
-  const userText = userResponse.value.trim();
-  const aiText = aiResponse.textContent.trim();
-  
-  console.log('[CLIENT] Contenido a comparar:', {
-      userTextLength: userText.length,
-      aiTextLength: aiText.length
+  compareResultsBtn.addEventListener('click', async function() {
+    console.log('[CLIENT] Click en Comparar Resultados');
+    
+    const userText = userResponse.value.trim();
+    const aiText = aiResponse.textContent.trim();
+    
+    if (!userText) {
+        alert('Por favor, ingresa tu respuesta antes de comparar.');
+        return;
+    }
+
+    if (!aiText) {
+        alert('Por favor, genera una respuesta de IA antes de comparar.');
+        return;
+    }
+
+    try {
+        compareResultsBtn.disabled = true;
+        compareResultsBtn.textContent = 'Comparando...';
+        comparisonResults.textContent = 'Analizando las respuestas...';
+        
+        const response = await fetch('/compare-responses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userResponse: userText,
+                aiResponse: aiText,
+                caseStudy: currentCaseStudy
+            })
+        });
+
+        const responseText = await response.text();
+        console.log('Respuesta cruda de comparación:', responseText);
+        
+        if (!response.ok) {
+            const errorData = JSON.parse(responseText);
+            throw new Error(errorData.error || 'Error en la comparación');
+        }
+
+        const data = JSON.parse(responseText);
+        currentComparison = data;
+        
+        const comparisonText = `
+        ★★★ Similitud: ${data.similarityPercentage} ★★★
+        
+        === Patrones Identificados ===
+        ${data.patterns}
+        
+        === Similitudes Clave ===
+        ${data.similarities}
+        
+        === Diferencias Significativas ===
+        ${data.differences}
+        
+        === Evaluación de Confiabilidad ===
+        ${data.reliability}
+        `;
+        
+        typeWriter(comparisonResults, comparisonText, 10, () => {
+          downloadAnalysisBtn.classList.remove('hidden');
+        });
+        
+    } catch (error) {
+        console.error('[CLIENT] Error al comparar respuestas:', error);
+        comparisonResults.textContent = `Error: ${error.message}`;
+        comparisonResults.style.color = 'red';
+    } finally {
+        compareResultsBtn.disabled = false;
+        compareResultsBtn.textContent = 'Comparar Resultados';
+    }
   });
 
-  if (!userText) {
-      const errorMsg = 'Por favor, ingresa tu respuesta antes de comparar.';
-      console.error('[CLIENT] Error:', errorMsg);
-      alert(errorMsg);
+  // Descargar análisis comparativo como PDF
+  downloadAnalysisBtn.addEventListener('click', async function() {
+    if (!currentComparison || !userResponse.value.trim() || !aiResponse.textContent.trim()) {
+      alert('No hay análisis completo para descargar');
       return;
-  }
+    }
 
-  if (!aiText) {
-      const errorMsg = 'Por favor, genera una respuesta de IA antes de comparar.';
-      console.error('[CLIENT] Error:', errorMsg);
-      alert(errorMsg);
-      return;
-  }
-
-  try {
-      compareResultsBtn.disabled = true;
-      compareResultsBtn.textContent = 'Comparando...';
-      comparisonResults.textContent = 'Analizando las respuestas...';
+    try {
+      downloadAnalysisBtn.disabled = true;
+      downloadAnalysisBtn.textContent = 'Generando PDF...';
       
-      const response = await fetch('/compare-responses', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-              userResponse: userText,
-              aiResponse: aiText,
-              caseStudy: currentCaseStudy
-          })
+      const response = await fetch('/generate-analysis-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userResponse: userResponse.value.trim(),
+          aiResponse: aiResponse.textContent.trim(),
+          comparison: currentComparison
+        })
       });
 
       if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error en la comparación');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al generar PDF');
       }
 
       const data = await response.json();
-      console.log('[CLIENT] Resultado de comparación:', data);
+      window.open(data.pdfUrl, '_blank');
       
-      // Construir texto formateado
-      const comparisonText = `
-      === Patrones Identificados ===
-      ${data.patterns}
-      
-      === Similitudes Clave ===
-      ${data.similarities}
-      
-      === Diferencias Significativas ===
-      ${data.differences}
-      
-      === Evaluación de Confiabilidad ===
-      ${data.reliability}
-      `;
-      
-      // Mostrar con animación
-      typeWriter(comparisonResults, comparisonText, 10);
-      
-  } catch (error) {
-      console.error('[CLIENT] Error al comparar respuestas:', error);
-      comparisonResults.textContent = `Error: ${error.message}`;
-      comparisonResults.style.color = 'red';
-  } finally {
-      compareResultsBtn.disabled = false;
-      compareResultsBtn.textContent = 'Comparar Resultados';
-  }
-});
+    } catch (error) {
+      console.error('[CLIENT] Error al generar PDF:', error);
+      alert(`Error al generar PDF: ${error.message}`);
+    } finally {
+      downloadAnalysisBtn.disabled = false;
+      downloadAnalysisBtn.textContent = 'Descargar Análisis (PDF)';
+    }
+  });
 
-  // Enviar respuesta del usuario (opcional)
+  // Enviar respuesta del usuario
   submitResponse.addEventListener('click', function() {
       if (userResponse.value.trim()) {
           alert('Respuesta guardada. Ahora puedes generar la respuesta de IA para comparar.');

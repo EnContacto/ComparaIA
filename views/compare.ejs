@@ -17,6 +17,10 @@
     <div class="container">
         <!-- Sección de comparación -->
         <div class="comparison-section">
+            <div class="similarity-star">
+                ★★★ Similitud: <%= similarityPercentage %> ★★★
+            </div>
+            
             <div class="response-comparison">
                 <div class="response-box">
                     <h2>Tu Respuesta</h2>
@@ -53,7 +57,10 @@
                 </div>
             </div>
             
-            <a href="/" class="btn-primary">Volver al Generador</a>
+            <div class="button-group">
+                <a href="/" class="btn-primary">Volver al Generador</a>
+                <a href="/generate-analysis-pdf?userResponse=<%= encodeURIComponent(userResponse) %>&aiResponse=<%= encodeURIComponent(aiResponse) %>&patterns=<%= encodeURIComponent(patterns) %>&similarities=<%= encodeURIComponent(similarities) %>&differences=<%= encodeURIComponent(differences) %>&reliability=<%= encodeURIComponent(reliability) %>&similarityPercentage=<%= encodeURIComponent(similarityPercentage) %>" class="btn-secondary">Descargar Análisis (PDF)</a>
+            </div>
         </div>
     </div>
 
